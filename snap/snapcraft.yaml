@@ -14,6 +14,7 @@ apps:
   apache:
     command: bin/start-apache
     daemon: simple
+    install-mode: disable
     restart-condition: always
     plugs:
       - network
@@ -23,9 +24,9 @@ parts:
   kalandra:
     plugin: python
     source: .
-  config-files:
-    plugin: dump
-    source: .
+#  config-files:
+#    plugin: dump
+#    source: .
   apache:
     plugin: nil
     stage-packages:

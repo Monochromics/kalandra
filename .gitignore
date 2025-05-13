@@ -4,4 +4,4 @@
 contrib
 build
 dist
-*.snap
+kalandra_test_amd64.snap
