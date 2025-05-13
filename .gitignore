@@ -4,3 +4,4 @@
 contrib
 build
 dist
+*.snap
