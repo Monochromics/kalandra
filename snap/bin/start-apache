@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+# Ensure runtime directories exist
+mkdir -p "$SNAP_COMMON/logs"
+
+# Run Apache with custom config
+exec $SNAP/usr/sbin/apache2 -f "$SNAP_COMMON/conf/apache2.conf" -DFOREGROUND

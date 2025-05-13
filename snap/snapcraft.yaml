@@ -1,0 +1,50 @@
+name: kalandra
+summary: An apt-mirror2 wrapper targeting airgapped deployments
+description: |
+  TBF
+version: test
+base: core24
+confinement: strict
+
+apps:
+  kalandra:
+    command: bin/apt-mirror
+    plugs:
+      - network
+  apache:
+    command: bin/start-apache
+    daemon: simple
+    restart-condition: always
+    plugs:
+      - network
+      - network-bind
+
+parts:
+  kalandra:
+    plugin: python
+    source: .
+  config-files:
+    plugin: dump
+    source: .
+  apache:
+    plugin: nil
+    stage-packages:
+      - apache2
+  launcher:
+    plugin: dump
+    source: snap/bin
+    organize:
+      start-apache: bin/start-apache
+  apache2-conf:
+    plugin: dump
+    source: snap/config
+   
+layout:
+  /etc/apt:
+    bind: $SNAP_COMMON/apt
+  /var/spool/apt-mirror:
+    bind: $SNAP_COMMON/var/spool/apt-mirror
+  /var/log/apt-mirror:
+    bind: $SNAP_COMMON/var/log/apt-mirror
+  /var/www/html:
+    bind: $SNAP_COMMON/var/www/html

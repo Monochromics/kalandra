@@ -1,6 +1,12 @@
 #!/bin/bash
-CONFIG="$SNAP_COMMON/apt/mirror.list"
+MIRROR_CONFIG="$SNAP_COMMON/apt/mirror.list"
+APACHE_CONFIG="$SNAP_COMMON/conf/apache2.conf"
+mkdir -p "$SNAP_COMMON/conf"
 
-if [ ! -f "$CONFIG" ]; then
-    cp "$SNAP/mirror.list" "$CONFIG"
+if [ ! -f "$MIRROR_CONFIG" ]; then
+    cp "$SNAP/snap/config/mirror.list" "$MIRROR_CONFIG"
+fi
+
+if [ ! -f "$APACHE_CONFIG" ]; then
+    cp "$SNAP/snap/config/apache2.conf" "$APACHE_CONFIG"
 fi
