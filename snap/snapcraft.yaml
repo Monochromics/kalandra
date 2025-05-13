@@ -24,9 +24,8 @@ parts:
   kalandra:
     plugin: python
     source: .
-#  config-files:
-#    plugin: dump
-#    source: .
+    python-packages:
+      - uvloop
   apache:
     plugin: nil
     stage-packages:
