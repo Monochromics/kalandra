@@ -1,5 +1,5 @@
 #!/bin/bash
-CONFIG="$SNAP_COMMON/mirror.list"
+CONFIG="$SNAP_COMMON/apt/mirror.list"
 
 if [ ! -f "$CONFIG" ]; then
     cp "$SNAP/mirror.list" "$CONFIG"

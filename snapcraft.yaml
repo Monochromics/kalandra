@@ -17,13 +17,13 @@ parts:
 apps:
   kalandra:
     command: bin/apt-mirror
+    plugs:
+      - network
 
 layout:
-  /etc/apt/mirror.list:
-    bind-file: $SNAP_COMMON/mirror.list
+  /etc/apt:
+    bind: $SNAP_COMMON/apt
   /var/spool/apt-mirror:
     bind: $SNAP_COMMON/var/spool/apt-mirror
-  /etc/apt/auth.conf.d:
-    bind: $SNAP_COMMON/auth.conf.d
   /var/log/apt-mirror:
     bind: $SNAP_COMMON/var/log/apt-mirror
