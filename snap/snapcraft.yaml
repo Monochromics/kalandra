@@ -1,8 +1,9 @@
 name: kalandra
-summary: An apt-mirror2 wrapper targeting airgapped deployments
+summary: An apt-mirror2 wrapper with a built-in apache server
 description: |
-  TBF
-version: test
+  kalandra is a self-contained apt-mirror2/apache wrapper that can be used to spin up debian repository mirror.
+  apt-mirror2 is a python port of apt-mirror, with additional features such a include_source_name to limit repository size.
+version: "0.1.0"
 base: core24
 confinement: strict
 
