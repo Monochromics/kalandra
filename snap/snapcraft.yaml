@@ -9,7 +9,7 @@ confinement: strict
 
 apps:
   kalandra:
-    command: bin/apt-mirror
+    command: kalandra
     plugs:
       - network
   apache:
@@ -36,6 +36,7 @@ parts:
     source: snap/bin
     organize:
       start-apache: bin/start-apache
+      export: bin/export
   apache2-conf:
     plugin: dump
     source: snap/config
