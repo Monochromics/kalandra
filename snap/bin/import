@@ -6,7 +6,7 @@ if [[ $# -ne 2 ]]; then
   exit 1
 fi
 
-TARBALL_PATH="$1"
+TARBALL_PATH="$2"
 
 if [[ ! -f "$TARBALL_PATH" ]]; then
   echo "Error: File not found: $TARBALL_PATH"
