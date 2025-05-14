@@ -4,6 +4,9 @@ case "$1" in
   export)
     exec "$SNAP/bin/export"
     ;;
+  import)
+    exec "$SNAP/bin/import"
+    ;;
   *)
     exec "$SNAP/bin/apt-mirror" "$@"
     ;;

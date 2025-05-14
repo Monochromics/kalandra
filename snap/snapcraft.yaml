@@ -37,6 +37,7 @@ parts:
     organize:
       start-apache: bin/start-apache
       export: bin/export
+      import: bin/import
   apache2-conf:
     plugin: dump
     source: snap/config
