@@ -41,6 +41,9 @@ parts:
   apache2-conf:
     plugin: dump
     source: snap/config
+    organize:
+      apache2.conf: config/apache2.conf
+      mirror.list: config/mirror.list
    
 layout:
   /etc/apt:
