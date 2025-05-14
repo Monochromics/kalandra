@@ -16,6 +16,6 @@ fi
 echo "Importing tarball from: $TARBALL_PATH"
 
 # Extract with overwrite and preserve structure
-tar -xzf "$TARBALL_PATH" -C "$SNAP_COMMON" --overwrite
+tar -xzf "$TARBALL_PATH" -C "/" --overwrite
 
 echo "Import complete into: $SNAP_COMMON"
