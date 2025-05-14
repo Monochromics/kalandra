@@ -2,11 +2,11 @@
 set -e
 
 EXPORT_PATH="$SNAP_COMMON/export-$(date +%Y%m%d-%H%M%S).tar.gz"
-SOURCE_PATHS="$SNAP_COMMON/var $SNAP_COMMON/conf"
 
 echo "Exporting from: $SOURCE_PATHS"
 echo "Saving to: $EXPORT_PATH"
 
-tar -czf "$EXPORT_PATH" $SOURCE_PATHS
+cd "$SNAP_COMMON"
+tar -czf "$EXPORT_PATH" var conf
 
 echo "Export complete: $EXPORT_PATH"
