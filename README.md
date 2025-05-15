@@ -1,6 +1,6 @@
 # kalandra
 
-**Kalandra** is a [Snap](https://snapcraft.io/kalandra) wrapper for [`apt-mirror2`](https://github.com/apt-mirror/apt-mirror2), designed to support airgapped Debian/Ubuntu mirror deployments. It includes an integrated apache2 setup for easy hosting, and export/import tools for airgapped deployments. The core apache and apt-mirror2 sources are unaltered, so all snapcraft bits act as an overlay to allow for clean rebasing.
+**Kalandra** is a [Snap](https://snapcraft.io/kalandra) wrapper for [`apt-mirror2`](https://gitlab.com/apt-mirror2/apt-mirror2), designed to support airgapped Debian/Ubuntu mirror deployments. It includes an integrated apache2 setup for easy hosting, and export/import tools for airgapped deployments. The core apache and apt-mirror2 sources are unaltered, so all snapcraft bits act as an overlay to allow for clean rebasing.
 
 ## 📦 Features
 
