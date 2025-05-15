@@ -1,170 +1,132 @@
-# apt-mirror2
+# kalandra
 
-[`apt-mirror2`](https://gitlab.com/apt-mirror2/apt-mirror2) is the Python/asyncio reimplementation of the
-[apt-mirror](https://github.com/apt-mirror/apt-mirror) developed as drop-in replacement for the latest.  
-This project should be suitable as general [apt-mirror](https://github.com/apt-mirror/apt-mirror) replacement.  
+**Kalandra** is a [Snap](https://snapcraft.io/kalandra) wrapper for [`apt-mirror2`](https://github.com/apt-mirror/apt-mirror2), designed to support airgapped Debian/Ubuntu mirror deployments. It includes an integrated apache2 setup for easy hosting, and export/import tools for airgapped deployments. The core apache and apt-mirror2 sources are unaltered, so all snapcraft bits act as an overlay to allow for clean rebasing.
 
-One of the main advantages of the `apt-mirror2` over the `apt-mirror` - you should never got broken mirror in case `apt-mirror2` returns 0 exit code.
-This is ensured by data integrity checks at all stages of mirroring.
+## 📦 Features
 
-# Requirements
+- Snap-packaged `apt-mirror2` for easy installation
+- Persistent data and config in `$SNAP_COMMON`
+- Embedded Apache server to serve mirrored packages
+- Easy export/import of mirror data for transfer to airgapped systems
 
-Python 3.10 is the minimum supported version. PyPy 3.10 (7.3) is supported also.  
-For additional dependencies look to the `pyproject.yml` and/or `requirements.txt`.
+---
 
-# Installation
-## Container (Docker/Podman)
+## 🔧 Commands
 
-Container images are available in the Docker Hub under [aptmirror/apt-mirror2](https://hub.docker.com/r/aptmirror/apt-mirror2) repository and in the
-Red Hat Quay.io inder [apt-mirror2/apt-mirror2](https://quay.io/repository/apt-mirror2/apt-mirror2) repository.
+### `kalandra`
+Runs `apt-mirror2` using a user-provided `mirror.list` configuration file located at:
 
-You can try it using
+```
+/var/snap/kalandra/common/apt/mirror.list
+```
+
+Edit this file to control what repositories and architectures are mirrored. By default, no mirrors are configured, so adjust according to your needs.
+One of the key features of apt-mirror2 is explicit includes and excludes. Assuming you wanted to only mirror the wget package from the `noble` release pocket, the following config would work:
+
+```
+set base_path         /var/spool/apt-mirror
+set mirror_path       $base_path/mirror
+set skel_path         $base_path/skel
+set var_path          $base_path/var
+set nthreads          8
+set _tilde            0
+deb [ arch=amd64 ] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
+include_source_name http://archive.ubuntu.com/ubuntu wget
+```
+This should result in ~200MBs of meta, along with the package itself, significantly more lightweight than the typical full mirror that apt-mirror requires
+
+### `kalandra export`
+Creates a compressed tarball of all mirror content and config files from:
+
+- `/var/snap/kalandra/common/var/`
+- `/var/snap/kalandra/common/conf/`
+
+The archive is saved in `$SNAP_COMMON` (typically `/var/snap/kalandra/common/`).
+
+Use this to back up or transfer mirror data to another system. Particularly useful in an airgapped deployment for easy repository portability.
+
+### `kalandra import <path-to-archive>`
+Restores an exported tarball into the snap’s data directory (`$SNAP_COMMON`). This is used to populate a new system with mirror contents or restore a backup.
 
 ```bash
-docker run -it --rm docker.io/aptmirror/apt-mirror2 --help
+kalandra import /path/to/export.tar.gz
 ```
+Please note that import requires that the import requires that the archive be located in a place accessible to the confined snap. You are best off `mv`ing the file to the /var/snap/kalandra/common/ directory prior to calling import.
 
-or
+---
+
+## 🌐 Apache Integration
+
+Kalandra includes an embedded Apache HTTP server for serving mirrored content.
+
+To start the web server:
 
 ```bash
-docker run -it --rm quay.io/apt-mirror2/apt-mirror2 --help
+snap start kalandra.apache
 ```
 
-You may wish to use `podman` command instead of `docker`.
+Apache will serve files from:
 
-### Image variants
-#### `aptmirror/apt-mirror2:latest`
-#### `aptmirror/apt-mirror2:<version>`
+```
+/var/snap/kalandra/common/var/spool/apt-mirror/
+```
 
-Images based on `debian:stable` image.
+Assuming the above example was used for wget, adding the following to the sources.list would allow the client to install the wget package:
+```
+deb [ arch=amd64 ] http://localhost:8080/ubuntu noble main
+```
+Keep in mind, clients will need the gpg keys for the appropriate repository as well if they are not present by default. (ex for the Ubuntu Pro repositories).
 
-#### `aptmirror/apt-mirror2:slim`
-#### `aptmirror/apt-mirror2:<version>-slim`
+### Apache Configuration
 
-Images based on `debian:stable-slim` image.
+The default Apache config template is located at:
 
-#### `aptmirror/apt-mirror2:alpine`
-#### `aptmirror/apt-mirror2:<version>-alpine`
+```
+/var/snap/kalandra/common/conf/apache2.conf
+```
 
-Images based on `alpine:3` image.
+You may edit this file to adjust document root, logging, or enable directory indexing (to resemble a standard Debian/Ubuntu archive layout). The shipped config already has most of this enabled, hosting on port 8080 by default.
 
-## PyPi
-
-PyPi package is available with the name [`apt-mirror`](https://pypi.org/project/apt-mirror/):
+Make sure to restart the service after changes:
 
 ```bash
-pip install apt-mirror
-apt-mirror --help
+snap restart kalandra.apache
 ```
 
-## Distro packages
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/apt-mirror2.svg)](https://repology.org/project/apt-mirror2/versions)
-
-### Debian
-
-`apt-miror2` is available in the Debian Unstable (sid). Please note, that as of now `apt-mirror2` do not
-replaces `apt-mirror` in the Debian and thus package provides `apt-mirror2` executable and
-`/etc/apt/mirror2.list` configuration file.
-
-### Packagecloud builds
-
-Debian (bookworm, trixie) and Ubuntu (22.04, 24.04) packages are available in the [Packagecloud repository](https://packagecloud.io/nE0sIghT/apt-mirror2).
-
-Quick automated repository setup:
-
-```sh
-curl -s https://packagecloud.io/install/repositories/nE0sIghT/apt-mirror2/script.deb.sh | sudo bash
+You can a persistent daemon with auto-restarts using 
+```bash
+snap enable kalandra.apache
 ```
 
-Package installation:
+---
 
-```sh
-sudo apt-get install apt-mirror2
+## 📁 Data & Configuration Paths
+
+All persistent data lives under the snap's `$SNAP_COMMON` path, typically:
+
+- Mirror data: `/var/snap/kalandra/common/var/spool/apt-mirror/`
+- Apache config: `/var/snap/kalandra/common/conf/apache2.conf`
+- Mirror config: `/var/snap/kalandra/common/apt/mirror.list`
+
+These locations are safe to mount, inspect, or back up.
+
+---
+
+## 🚀 Installation
+
+This snap is available in the public store via:
 ```
+snap install kalandra
+```
+or in the [snapstore](https://snapcraft.io/kalandra) directly.
 
-For manual steps please look to the [Packagecloud repository](https://packagecloud.io/nE0sIghT/apt-mirror2).
-
-## Build from source with virtualenv
-
-It's possible to use `apt-mirror2` from a virtualenv:
+If you would like to build from this source, you can clone the repository and from within the directory call:
+```bash
+snapcraft
+```
+and then install the snap locally for testing:
 
 ```bash
-# Let's work in the home folder
-cd
-
-# Create virtualenv
-virtualenv ~/venv/apt-mirror2
-source ~/venv/apt-mirror2/bin/activate
-
-# Clone apt-mirror2 source code
-git clone https://gitlab.com/apt-mirror2/apt-mirror2
-cd apt-mirror2
-
-# Install requirements
-pip install -r requirements.txt
-
-# Install apt-mirror2 into virtualenv
-python setup.py install
-
-apt-mirror --help
+snap install --dangerous kalandra_*.snap
 ```
 
-# Usage
-
-As the drop-in replacement for the `apt-mirror` this project supports same CLI syntax.
-
-```
-usage: apt-mirror [-h] [--version] [configfile]
-
-positional arguments:
-  configfile  Path to config file. Default /etc/apt/mirror.list
-
-options:
-  -h, --help  show this help message and exit
-  --version   Show version
-```
-
-# apt-mirror compatibility
-
-Most of `apt-mirror` configuration directives are supported.  
-As of now proxy for FTP repositories is not supported.  
-
-File lists (ALL, NEW, MD5, SHA256, SHA512) are not written by default, but you can enable them with the `write_file_lists` option.
-
-In addition there are some enhancements available:
-
-- Repositories without MD5 hashsums are correctly mirrored
-- Old index files are properly cleaned and don't produces errors in mirror processing
-- Standard source.list `[ arch=arch1,arch2 ]` can be used to specify multiple repository architectures for mirroring.
-- multiple codenames (or flat folders) can be specified using comma as delimiter.
-- `mirror_path URL PATH` option may be used to specify `PATH` to use for saving mirror files instead of path that is generated from `URL`.
-- Additional configuration is loaded from the `*.list` files in the directory named same as `configfile` with the `.d` suffix. Eg `/etc/apt/mirror.list.d/*.list`.
-- Rate limit is enforced for overall download rate.
-- Slow download rate protection is enabled by default and can be configured via `mirror.list`.
-- Non-zero exit code is returned if some of required files were not downloaded due to network or server errors or
-  no repositories were configured.
-- HTTP user agent can be configured via `user_agent` configuration.
-- Configuration variables are exposed to postmirror_script.
-- `by-hash` list option can be used to control whether `Acquire-By-Hash` Release option should be respected or enforced.
-- mirror wipe protection is available and configurable via `wipe_size_ratio` and `wipe_count_ratio` settings.
-- per-repository log files are available in the `var_path` folder
-- `dists` folder is almost atomicaly replaced using move instead of copy/link
-- native Prometheus metrics are supported
-
-# Common problems
-## `LocalProtocolError: Max outbound streams is n, n open`
-
-This warning may appear with HTTP2 mirrors when you have too much `nthreads` configured. You may either
-lower `nthreads` value or disable http2 via `http2-disable` option. As of now apt-mirror2 have no control over HTTP2 concurrent streams value used by
-httpx/h2 client but limits count of simultaneously downloaded files which still can exceeds maximum outbound streams due to unknown reason.
-
-## `RuntimeError: can't start new thread`
-
-Long story short: upgrade Docker.
-
-Look to the https://gitlab.com/apt-mirror2/apt-mirror2/-/issues/33#note_2377422047 for more solutions.
-
-# License
-
-GNU General Public License v3.0 or later
