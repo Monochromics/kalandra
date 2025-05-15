@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+if [[ $# -ne 2 ]]; then
+  echo "Usage: kalandra import <path-to-tarball>"
+  exit 1
+fi
+
+TARBALL_PATH="$2"
+
+if [[ ! -f "$TARBALL_PATH" ]]; then
+  echo "Error: File not found: $TARBALL_PATH"
+  exit 2
+fi
+
+echo "Importing tarball from: $TARBALL_PATH"
+
+# Extract with overwrite and preserve structure
+tar -xzf "$TARBALL_PATH" -C "/" --overwrite
+
+echo "Import complete into: $SNAP_COMMON"

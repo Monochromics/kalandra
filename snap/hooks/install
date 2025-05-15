@@ -4,9 +4,9 @@ APACHE_CONFIG="$SNAP_COMMON/conf/apache2.conf"
 mkdir -p "$SNAP_COMMON/conf"
 
 if [ ! -f "$MIRROR_CONFIG" ]; then
-    cp "$SNAP/snap/config/mirror.list" "$MIRROR_CONFIG"
+    cp "$SNAP/config/mirror.list" "$MIRROR_CONFIG"
 fi
 
 if [ ! -f "$APACHE_CONFIG" ]; then
-    cp "$SNAP/snap/config/apache2.conf" "$APACHE_CONFIG"
+    cp "$SNAP/config/apache2.conf" "$APACHE_CONFIG"
 fi
