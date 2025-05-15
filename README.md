@@ -85,7 +85,7 @@ The default Apache config template is located at:
 /var/snap/kalandra/common/conf/apache2.conf
 ```
 
-You may edit this file to adjust document root, logging, or enable directory indexing (to resemble a standard Debian/Ubuntu archive layout).
+You may edit this file to adjust document root, logging, or enable directory indexing (to resemble a standard Debian/Ubuntu archive layout). The shipped config already has most of this enabled, hosting on port 8080 by default.
 
 Make sure to restart the service after changes:
 
